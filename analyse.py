@@ -2,7 +2,8 @@ import ollama
 import argparse
 import os
 
-def analyze_log(file_path: str, query: str):
+# 2. Funktionssignatur anpassen, um 'num_lines' zu akzeptieren
+def analyze_log(file_path: str, query: str, num_lines: int):
     """
     Liest eine Log-Datei und nutzt Ollama, um eine Frage dazu zu beantworten.
     """
@@ -13,13 +14,14 @@ def analyze_log(file_path: str, query: str):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
-            log_content = "".join(lines[-200:])
+            # 3. Den festen Wert durch die Variable ersetzen
+            log_content = "".join(lines[-num_lines:])
 
         prompt = f"""
         Du bist ein erfahrener Systemadministrator. Analysiere den folgenden Ausschnitt aus einer Log-Datei.
         Beantworte die Frage des Benutzers präzise und kurz. Gib wenn möglich konkrete Beispiele aus dem Log an.
 
-        Log-Daten:
+        Log-Daten ({num_lines} Zeilen):
         ---
         {log_content}
         ---
@@ -27,10 +29,9 @@ def analyze_log(file_path: str, query: str):
         Frage des Benutzers: {query}
         """
 
-        print("🤖 Analysiere Logs mit dem lokalen LLM... bitte warten.")
+        print(f"🤖 Analysiere die letzten {num_lines} Log-Zeilen mit dem lokalen LLM... bitte warten.")
 
         response = ollama.chat(
-            # Angepasst an dein installiertes Modell
             model='gemma3:4b', 
             messages=[
                 {'role': 'user', 'content': prompt}
@@ -46,10 +47,19 @@ def analyze_log(file_path: str, query: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Analysiere Log-Dateien mit einem lokalen LLM via Ollama.",
-        epilog="Beispiel: python analyse.py --datei /var/log/syslog --frage 'Gab es Authentifizierungsfehler?'"
+        epilog="Beispiel: python analyse.py --datei /var/log/syslog --frage 'Gab es Authentifizierungsfehler?' --zeilen 500"
     )
     parser.add_argument("--datei", required=True, help="Der Pfad zur Log-Datei.")
     parser.add_argument("--frage", required=True, help="Die Frage, die du an die Logs hast.")
+    
+    # 1. Neues Argument für die Anzahl der Zeilen hinzufügen
+    parser.add_argument(
+        "--zeilen", 
+        type=int, 
+        default=200, 
+        help="Die Anzahl der letzten Zeilen, die analysiert werden sollen. Standard: 200"
+    )
 
     args = parser.parse_args()
-    analyze_log(args.datei, args.frage)
+    # Den neuen Parameter an die Funktion übergeben
+    analyze_log(args.datei, args.frage, args.zeilen)
