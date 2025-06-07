@@ -1,0 +1,5 @@
+[2025-06-07 10:00:11] INFO: User 'admin' logged in successfully from IP 192.168.1.10.
+[2025-06-07 10:05:23] WARNING: Disk space is running low on /dev/sda1 (95% used).
+[2025-06-07 10:15:01] ERROR: Failed to connect to database 'prod_db'. Connection refused by server.
+[2025-06-07 10:15:02] CRITICAL: Service 'payment_gateway' is down. Immediate action required.
+[2025-06-07 10:20:45] ERROR: Authentication failed for user 'guest' from IP 192.168.1.25.
